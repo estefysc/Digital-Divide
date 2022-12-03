@@ -1,35 +1,34 @@
 # Magnificent 7
 # -*- coding: utf-8 -*-
 
-import dash
-from dash import html
-from dash import dcc
-import plotly.express as px
-import pandas as pd
-from dash.dependencies import Input, Output, State
 import json
+import os
 from datetime import datetime
 
-import os
-
+import dash
+import pandas as pd
+import plotly.express as px
+from dash import dcc, html
+from dash.dependencies import Input, Output, State
 
 #Choropleth color options Changes Here
+
 colorscales = px.colors.named_colorscales()
 
-
+#test
 # System Date and Time
 now = datetime.now()
 dt = now.strftime("%d/%m/%Y %H:%M:%S")
 
 # Read geojson files
-d1 = open(r"AppMainFolder\backend_resources\results\orlando_averaged_2022-01-01.geojson")
+d1 = open(r"backend_resources\results\orlando_averaged_2022-01-01.geojson")
 data = json.load(d1)
 d2 = data["features"][0]
 
 # Extract data from JSON file
 d3 = pd.json_normalize(data, record_path=['features'])
-base = d3.loc[:, ["properties.NeighName", 'properties.avg_d_mbps']]
-base.columns = ["NeighName", "Avg Mbps"]  # change column name
+base = d3.loc[:, ["properties.NeighName", 'properties.avg_d_mbps' , "properties.avg_income"]]
+base.columns = ["NeighName", "Avg Mbps", "avg_income"]  # change column name
 
 # Function to generate drop-down list (Neighborhood names)
 
@@ -63,7 +62,7 @@ reset_data = html.A(html.Button('Click Here to Reset Map',
                                     "backgroundColor": "white",
                                     "color": "black",
                                     "width": "175px",
-                                    "borderRadius": "1vw",
+                                    "border-radius": "16px",
                                     "display": "block",
                                 }
 
@@ -71,26 +70,30 @@ reset_data = html.A(html.Button('Click Here to Reset Map',
 
 # Logo image
 
-logo = html.Img(src=app.get_asset_url('DigitalDivide_logo_320x240.png'), style={
+logo = html.Img(src=app.get_asset_url('CityofOrlando_white.png'), style={
                                       "position": "absolute",
-                                      "top": "-40px",
-                                      "height": "180px",
+                                      "top": "-10px",
+                                      "height": "70px",
                                       "opacity": "67%"
                                  })
+
 
 # navigation bar
 navBar = html.Nav(
             [html.A('Home', className="navItem", href='/'),
-             html.A('Graphs', className="navItem", href='/graphs') ,
-             html.A('Test your speeds', className="navItem", href='/speedtest')
+             html.A('Graphs', className="navItem", id="graphNav", href='/graphs') ,
+             html.A('Test your speeds', className="navItem", id="speedNav", href='/speedtest'),
+             html.A('Internet access map', className="navItem", href='/access-map')
 
             ],
             style={
                 "font-family": "Trebuchet MS",
-                "backgroundColor": "#1d2b37",
+                "backgroundColor": "transparent",
                 "display": "flex",
                 "margin": "5px",
-                "justify-content":"center"
+                "justify-content":"center",
+                "border-radius": "16px",
+                
             }
             )
 
@@ -103,26 +106,31 @@ banner = html.Div([
             "left": "60",
             }
             ),  # ------- First Title
-    html.H3(["A comprehensive look at the internet speeds throughout Orlando, Florida and its city districts."],
+     html.Img(src=app.get_asset_url('DigitalDivide_logo_320x240.png'),
             className="titleDescription",
             style={
-            #"text-align": "right",
             "position": "relative",
-            "left": "256px",
             "top": "10px",
-            "marginRight": "300px",
             "fontSize": "25pt",
             "font-family": "Trebuchet MS",
             "color": "white",
             "opacity": "67%",
-            "max-width": "80%"
+            "max-width": "80%",
+            "display": "block",
+            "margin-left": "auto",
+            "margin-right": "auto",
+            "width": "18%",
+            "border-radius": "16px"
             }
-            ),  # -----------Second Title
+            ),  
+            
+              # -----------Second Title
     html.Button("Light Mode", className="colorButton",            
                 style={
                     "position": "relative",
                     "float": "right",
-                    "font-family": "Trebuchet MS"
+                    "font-family": "Trebuchet MS",
+                    "border-radius": "16px"
                 }
                 ),
     navBar,
@@ -136,55 +144,21 @@ id="headerDiv",
         "top": "0",
         "left": "0",
         "right": "0",        
-        "backgroundColor": "#1d2b37",
+        "backgroundColor": "transparent",
+          
 }
 )
 
 # images of graphs
 
-image = html.Img(src=app.get_asset_url('upSpeed.png'), style={
-                                    "margin": "0 auto",
-                                    "display": "block",
-                                    "borderRadius": "1vw",
-                                    "position": "relative",
-                                    "zIndex": "999",
-                                })
-image2 = html.Img(src=app.get_asset_url('downSpeed.png'), style={
-                                     "margin": "0 auto",
-                                     "borderRadius": "1vw",
-                                     "display": "block",
-                                     "position": "relative",
-                                     "zIndex": "999",
-                                 })
-image3 = html.Img(src=app.get_asset_url('Up_Down_Speed_BG.png'), style={
-                                     "margin": "0 auto",
-                                     "borderRadius": "1vw",
-                                     "display": "block",
-                                     "position": "relative",
-                                     "zIndex": "999",
-                                 })
-image4 = html.Img(src=app.get_asset_url('downSpeed_Line.png'), style={
-                                        "margin": "0 auto",
-                                        "borderRadius": "1vw",
-                                        "display": "block",
-                                        "position": "relative",
-                                        "zIndex": "999",
-                                 })
-image5 = html.Img(src=app.get_asset_url('upSpeed_Line.png'), style={
-                                        "margin": "0 auto",
-                                        "borderRadius": "1vw",
-                                        "display": "block",
-                                        "position": "relative",
-                                        "zIndex": "999",
-                                 })
+# images of graphs
 
-image6 = html.Img(src=app.get_asset_url('avgSpeed_Line.png'), style={
-                                        "margin": "0 auto",
-                                        "borderRadius": "1vw",
-                                        "display": "block",
-                                        "position": "relative",
-                                        "zIndex": "999",
-                                 })
+image = html.Img(src=app.get_asset_url('upSpeed.png'), className ="Image", id = "upSpeedImg") 
+image2 = html.Img(src=app.get_asset_url('downSpeed.png'), className ="Image", id = "downSpeedImg")
+image3 = html.Img(src=app.get_asset_url('Up_Down_Speed_BG.png'), className ="Image", id = "upDownSpeedImg")
+image4 = html.Img(src=app.get_asset_url('downSpeed_Line.png'),  className ="Image", id = "downSpeedLineImg" )
+image5 = html.Img(src=app.get_asset_url('upSpeed_Line.png'), className ="Image", id = "upSpeedLineImg")
+image6 = html.Img(src=app.get_asset_url('avgSpeed_Line.png'), className ="Image", id = "avgSpeedLineImg")
 # Background image
 
 BGimage = html.Img(src=app.get_asset_url('orlando-cityscape.jpg'), style={
@@ -249,7 +223,8 @@ speed = html.Div([
         id="internet",
         options=[
             {'label': 'Upload Speeds', 'value': 'avg_u_mbps'},
-            {'label': 'Download Speeds', 'value': 'avg_d_mbps'}
+            {'label': 'Download Speeds', 'value': 'avg_d_mbps'},
+            {'label': 'Income', 'value': 'avg_income'}
 
 
         ],
@@ -442,8 +417,49 @@ speed_page = html.Div([
         banner,
         html.Br(),
         ]),
-    html.Div(html.Iframe("Iframe", style={ "z-index":"999","min-height":"360px","width":"100%"},
+    html.Div(html.Iframe("Iframe", id="speedIframe", style={ "z-index":"999","min-height":"360px","width":"100%"},
             src="//openspeedtest.com/Get-widget.php"), style= {"display":"flex"})
+],
+           style={
+        "position": "absolute",
+        "top": "0px",
+        "left": "0px",
+        "right": "0px",
+        "bottom": "0px",
+        "width": "100%",
+        "height": "3500px",
+        "backgroundColor": "#15202B",
+        "margin": "0",
+        "padding": "0"
+    },
+    id = "bodyBackgroundColor"),
+
+access_map = html.Div([
+    html.Div([
+        BGimage,
+        banner,
+        html.Div(html.Iframe("Iframe",
+                             style={
+                                 "z-index": "999",
+                                 "width": "100%",
+                                 "height": "800px"},
+                             src="assets/access-map.html"), style={"display": "flex"}),
+        html.Br(),
+    ],
+        style={
+            "position": "absolute",
+            "top": "0px",
+            "left": "0px",
+            "right": "0px",
+            "bottom": "0px",
+            "width": "100%",
+            "backgroundColor": "#15202B",
+            "margin": "0",
+            "padding": "0"
+        },
+        id="bodyBackgroundColor",
+    ),
+
 ])
 
 # Final Layout
@@ -466,9 +482,10 @@ def display_page(pathname):
         return graphs_layout
     elif pathname == '/speedtest':
         return speed_page
+    elif pathname == '/access-map':
+        return access_map
     else:
         return home_page
-
 
 # App callback
 @app.callback(
@@ -479,11 +496,16 @@ def display_page(pathname):
 )
 # call back function
 def update_map(qrt, name, int_speed, colors):
-    d1 = open(r"AppMainFolder\backend_resources\results\orlando_averaged_" + qrt + ".geojson")
+    d1 = open(r"backend_resources\results\orlando_averaged_" + qrt + ".geojson")
     data = json.load(d1)
     base = pd.json_normalize(data, record_path=['features'])
-    base = base.iloc[:, [6, 7, 8]]
-    base.columns = ["NeighName", "avg_d_mbps", "avg_u_mbps"]
+  
+    if (qrt.__eq__("2022-01-01")):
+        base = base.iloc[:, [6, 7, 8, 9]]
+        base.columns = ["NeighName", "avg_d_mbps", "avg_u_mbps", "avg_income"]
+    else:
+        base = base.iloc[:, [6, 7, 8]]
+        base.columns = ["NeighName", "avg_d_mbps", "avg_u_mbps"]
     if name != "All":
         base = base.loc[base.loc[:, "NeighName"] == name, ]
 
@@ -491,7 +513,8 @@ def update_map(qrt, name, int_speed, colors):
     fig = px.choropleth_mapbox(base, geojson=data, locations="NeighName", color=int_speed, featureidkey="properties.NeighName",
                                center={"lat": 28.488137, "lon": -81.331054},
                                color_continuous_scale=colors, #Changes Here
-                               mapbox_style="carto-positron", zoom=10)
+                               mapbox_style="carto-positron", zoom=10,
+                               labels={'NeighName':'Neighborhood', 'avg_d_mbps':'Average Download Speed', 'avg_income':'Average Income', 'avg_u_mbps':'Average Upload Speed'})
     fig.update_layout(margin={"r": 0, "t": 0, "l": 0, "b": 0})
 
     #date and time
@@ -502,4 +525,4 @@ def update_map(qrt, name, int_speed, colors):
 
 if __name__ == '__main__':
     app.run_server(debug=True, dev_tools_ui=False)
-    serve(app)
+    
